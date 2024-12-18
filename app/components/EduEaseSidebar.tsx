@@ -4,14 +4,12 @@ import * as React from 'react'
 import { Book, Bookmark, ExternalLink, Home, Send, Settings, Save, LogOut, RefreshCw, X, Search, PenTool, Trash2, Globe, Maximize2 } from 'lucide-react'
 import { cn } from "@/lib/utils"
 import {
-  Sidebar,
   SidebarContent,
   SidebarHeader,
   SidebarProvider,
 } from '@/components/ui/sidebar'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
@@ -206,7 +204,7 @@ export function EduEaseSidebar() {
   const [messages, setMessages] = React.useState<MessageType[]>([])
   const [input, setInput] = React.useState('')
   const [activeTab, setActiveTab] = React.useState('home')
-  const [savedResources, setSavedResources] = React.useState<ResourceType[]>([])
+  // const savedResources = [];
   const [searchHistory, setSearchHistory] = React.useState<string[]>([])
   const [searchQuery, setSearchQuery] = React.useState('')
   const [userName, setUserName] = React.useState<string | null>(null)
@@ -256,9 +254,9 @@ export function EduEaseSidebar() {
     color: userSettings.darkMode ? darkModeStyles.buttonText : '#FFFFFF',
   };
 
-  const iconStyle = {
-    color: userSettings.darkMode ? '#FFFFFF' : '#000000',
-  };
+  // const iconStyle = {
+  //   color: userSettings.darkMode ? '#FFFFFF' : '#000000',
+  // };
 
   const cardStyle = {
     backgroundColor: '#FFFFFF',
@@ -501,7 +499,7 @@ export function EduEaseSidebar() {
   }
 
   const handleRemoveResource = (index: number) => {
-    setSavedResources(prev => prev.filter((_, i) => i !== index))
+    // setSavedResources(prev => prev.filter((_, i) => i !== index))
   }
 
   const handleClearChat = () => {
