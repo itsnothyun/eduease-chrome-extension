@@ -14,7 +14,6 @@ import { Separator } from "@/components/ui/separator"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
 import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Message as MessageType, Resource as ResourceType } from '@/types'
 import { ResourceExpandView } from './ResourceExpandView'
@@ -37,174 +36,10 @@ interface UserSettings {
   darkMode: boolean;
 }
 
-const CollectionDialog = ({
-  isOpen,
-  onClose,
-  onConfirm,
-  title,
-  description,
-  collections,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  onConfirm: (name: string) => void;
-  title: string;
-  description: string;
-  collections: { name: string; resources: ResourceType[] }[];
-}) => {
-  const [collectionName, setCollectionName] = React.useState('');
-  const [selectedCollection, setSelectedCollection] = React.useState<string | null>(null);
-  const [error, setError] = React.useState<string | null>(null);
-  const inputRef = React.useRef<HTMLInputElement>(null);
-
-  // Focus input when dialog opens
-  React.useEffect(() => {
-    if (isOpen && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [isOpen]);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const nameToUse = selectedCollection || collectionName.trim();
-    
-    if (!nameToUse) {
-      setError('Please enter a collection name or select an existing one');
-      return;
-    }
-
-    if (collections.some(c => c.name === nameToUse)) {
-      // If selecting existing collection, allow it
-      if (selectedCollection === nameToUse) {
-        onConfirm(nameToUse);
-        onClose();
-      } else {
-        setError('A collection with this name already exists');
-      }
-      return;
-    }
-
-    onConfirm(nameToUse);
-    setCollectionName('');
-    setSelectedCollection(null);
-    setError(null);
-    onClose();
-  };
-
-  const handleCollectionSelect = (name: string) => {
-    setSelectedCollection(name);
-    setCollectionName(name);
-    setError(null);
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setCollectionName(value);
-    if (selectedCollection) {
-      setSelectedCollection(null);
-    }
-    setError(null);
-  };
-
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <Card className="w-96 max-w-[90vw]">
-        <form onSubmit={handleSubmit}>
-          <CardHeader>
-            <CardTitle className={cn(
-              "text-lg font-semibold",
-              userSettings.darkMode ? "text-white" : "text-gray-900"
-            )}>{title}</CardTitle>
-            <p className={cn(
-              "text-sm",
-              userSettings.darkMode ? "text-gray-300" : "text-gray-500"
-            )}>{description}</p>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <p className={cn(
-                "text-sm font-medium",
-                userSettings.darkMode ? "text-white" : "text-gray-900"
-              )}>Create or choose collection:</p>
-              <Input
-                ref={inputRef}
-                value={collectionName}
-                onChange={handleInputChange}
-                placeholder="Enter collection name"
-                className={cn(
-                  "w-full",
-                  error && "border-red-500 focus:ring-red-500"
-                )}
-                autoFocus
-              />
-              {error && (
-                <p className="text-sm text-red-500 mt-1">{error}</p>
-              )}
-            </div>
-            
-            {collections.length > 0 && (
-              <div className="space-y-2">
-                <p className={cn(
-                  "text-sm font-medium",
-                  userSettings.darkMode ? "text-white" : "text-gray-900"
-                )}>Existing collections:</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {collections.map((collection) => (
-                    <Button
-                      key={collection.name}
-                      type="button"
-                      variant={selectedCollection === collection.name ? "default" : "outline"}
-                      className={cn(
-                        "w-full justify-start text-left",
-                        userSettings.darkMode ? "text-white hover:text-white" : "text-black hover:text-black",
-                        selectedCollection === collection.name && "bg-blue-600 hover:bg-blue-700 text-white"
-                      )}
-                      onClick={() => handleCollectionSelect(collection.name)}
-                    >
-                      <Book className="w-4 h-4 mr-2" />
-                      {collection.name}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </CardContent>
-          <CardFooter className="flex justify-end space-x-2">
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => {
-                onClose();
-                setCollectionName('');
-                setSelectedCollection(null);
-                setError(null);
-              }}
-            >
-              Cancel
-            </Button>
-            <Button 
-              type="submit" 
-              disabled={!collectionName.trim() && !selectedCollection}
-            >
-              {selectedCollection ? 'Save to Collection' : 'Create & Save'}
-            </Button>
-          </CardFooter>
-        </form>
-      </Card>
-    </div>
-  );
-};
-
-export function EduEaseSidebar() {
+const EduEaseSidebar = () => {
   const [messages, setMessages] = React.useState<MessageType[]>([])
   const [input, setInput] = React.useState('')
   const [activeTab, setActiveTab] = React.useState('home')
-  // const savedResources = [];
   const [searchHistory, setSearchHistory] = React.useState<string[]>([])
   const [searchQuery, setSearchQuery] = React.useState('')
   const [userName, setUserName] = React.useState<string | null>(null)
@@ -254,14 +89,6 @@ export function EduEaseSidebar() {
     color: userSettings.darkMode ? darkModeStyles.buttonText : '#FFFFFF',
   };
 
-  // const iconStyle = {
-  //   color: userSettings.darkMode ? '#FFFFFF' : '#000000',
-  // };
-
-  const cardStyle = {
-    backgroundColor: '#FFFFFF',
-  };
-
   // Handle localStorage after mount
   React.useEffect(() => {
     const savedName = localStorage.getItem('eduease-user-name')
@@ -301,6 +128,10 @@ export function EduEaseSidebar() {
       document.head.removeChild(styleSheet);
     };
   }, []);
+
+  React.useEffect(() => {
+    addToast();
+  }, [addToast]);
 
   const handleSend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -494,12 +325,8 @@ export function EduEaseSidebar() {
     }
   };
 
-  const handleRemoveSearch = (index: number) => {
+  const handleRemoveSearch = (_: number, index: number) => {
     setSearchHistory(prev => prev.filter((_, i) => i !== index))
-  }
-
-  const handleRemoveResource = (index: number) => {
-    // setSavedResources(prev => prev.filter((_, i) => i !== index))
   }
 
   const handleClearChat = () => {
@@ -562,7 +389,7 @@ export function EduEaseSidebar() {
       <>
         <div className="flex flex-col space-y-4 mb-4">
           {Array.isArray(message.content) ? (
-            message.content.map((resource: ResourceType) => (
+            message.content.map((resource: ResourceType, _) => (
               <Card 
                 key={resource.id} 
                 className="w-full bg-white dark:bg-gray-800 shadow-md hover:shadow-lg transition-transform transform hover:scale-[1.02] rounded-lg p-4 border border-gray-200 dark:border-gray-800"
@@ -830,8 +657,8 @@ export function EduEaseSidebar() {
               />
             </div>
             <ul className="space-y-1">
-              {searchHistory.map((item, index) => (
-                <li key={index} className="flex justify-between items-center p-2 hover:bg-gray-100 rounded-md">
+              {searchHistory.map((item, _) => (
+                <li key={item} className="flex justify-between items-center p-2 hover:bg-gray-100 rounded-md">
                   <div>
                     <p className={cn(
                       "font-medium text-sm",
@@ -841,7 +668,7 @@ export function EduEaseSidebar() {
                   <Button
                     variant="ghost"
                     size="icon"
-                    onClick={() => handleRemoveSearch(index)}
+                    onClick={() => handleRemoveSearch(_, searchHistory.indexOf(item))}
                     className="text-red-600 hover:bg-red-100"
                   >
                     <Trash2 className="h-4 w-4" />
@@ -1500,4 +1327,6 @@ export function EduEaseSidebar() {
       />
     </SidebarProvider>
   );
-}
+};
+
+export default EduEaseSidebar;
