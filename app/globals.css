@@ -2,20 +2,66 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Root color variables */
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --primary: #1e40af; /* Example primary color for buttons, etc. */
+  --secondary: #64748b; /* Neutral tone for UI */
+  --border: #e2e8f0; /* Light gray border */
+  --radius: 0.5rem;
 }
 
+/* Dark mode variables */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --primary: #3b82f6; /* Light blue for dark mode */
+    --secondary: #94a3b8; /* Neutral gray tone */
+    --border: #334155; /* Darker border in dark mode */
   }
 }
 
+/* Base styles */
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  @apply bg-background text-foreground font-sans antialiased;
+}
+
+/* Utility for smooth transition */
+body,
+button,
+input {
+  @apply transition-colors duration-300 ease-in-out;
+}
+
+/* Scrollbar styles (optional for better aesthetics) */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-gray-700;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 dark:bg-gray-500 rounded-md;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400 dark:bg-gray-400;
+}
+
+/* Custom components (optional, reusable classes) */
+.btn-primary {
+  @apply bg-primary text-white font-medium px-4 py-2 rounded hover:bg-opacity-90 focus:outline-none;
+}
+
+.btn-secondary {
+  @apply bg-secondary text-white font-medium px-4 py-2 rounded hover:bg-opacity-90 focus:outline-none;
+}
+
+.card {
+  @apply bg-white dark:bg-gray-900 border border-border p-4 rounded-lg shadow-md;
+}
+
+.input {
+  @apply border border-border rounded px-3 py-2 focus:ring-2 focus:ring-primary outline-none;
 }
