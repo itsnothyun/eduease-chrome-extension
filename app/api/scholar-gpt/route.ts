@@ -24,7 +24,7 @@ Do not include explanations, headers, or additional text. Only return valid JSON
 export async function POST(req: Request) {
   try {
     // 1. Parse and Validate Input
-    const { messages, userPrompt } = await req.json();
+    const { messages } = await req.json();
     
     if (!messages || !Array.isArray(messages)) {
       return NextResponse.json(

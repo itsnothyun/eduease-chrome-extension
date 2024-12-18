@@ -2,12 +2,10 @@
 
 import * as React from 'react'
 import { X } from 'lucide-react'
-import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Loader2 } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
-import { cn } from "@/lib/utils"
 
 interface ResourceExpandViewProps {
   isOpen: boolean

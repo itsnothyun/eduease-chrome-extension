@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import { Book, Bookmark, ExternalLink, Home, Send, Settings, Save, Moon, Sun, LogOut, RefreshCw, Plus, X, Search, PenTool, Trash2, Globe, Maximize2 } from 'lucide-react'
+import { Book, Bookmark, ExternalLink, Home, Send, Settings, Save, LogOut, RefreshCw, X, Search, PenTool, Trash2, Globe, Maximize2 } from 'lucide-react'
 import { cn } from "@/lib/utils"
 import {
   Sidebar,
@@ -18,8 +18,9 @@ import { useToast } from "@/components/ui/use-toast"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Message, Resource, UserSettings } from '@/types'
+import { Message as MessageType, Resource as ResourceType } from '@/types'
 import { ResourceExpandView } from './ResourceExpandView'
+import Image from "next/image";
 
 const shakeAnimation = `
 @keyframes shake {
@@ -32,18 +33,10 @@ const shakeAnimation = `
 }
 ` as const;
 
-interface Resource {
-  id: string;
-  title: string;
-  description: string;
-  link: string;
-}
-
-interface Message {
-  id: string | number;
-  content: string | Resource[];
-  sender: 'user' | 'assistant';
-  createdAt: string;
+interface UserSettings {
+  name: string;
+  email: string;
+  darkMode: boolean;
 }
 
 const CollectionDialog = ({
@@ -59,7 +52,7 @@ const CollectionDialog = ({
   onConfirm: (name: string) => void;
   title: string;
   description: string;
-  collections: { name: string; resources: Resource[] }[];
+  collections: { name: string; resources: ResourceType[] }[];
 }) => {
   const [collectionName, setCollectionName] = React.useState('');
   const [selectedCollection, setSelectedCollection] = React.useState<string | null>(null);
@@ -210,10 +203,10 @@ const CollectionDialog = ({
 };
 
 export function EduEaseSidebar() {
-  const [messages, setMessages] = React.useState<Message[]>([])
+  const [messages, setMessages] = React.useState<MessageType[]>([])
   const [input, setInput] = React.useState('')
   const [activeTab, setActiveTab] = React.useState('home')
-  const [savedResources, setSavedResources] = React.useState<Resource[]>([])
+  const [savedResources, setSavedResources] = React.useState<ResourceType[]>([])
   const [searchHistory, setSearchHistory] = React.useState<string[]>([])
   const [searchQuery, setSearchQuery] = React.useState('')
   const [userName, setUserName] = React.useState<string | null>(null)
@@ -224,18 +217,16 @@ export function EduEaseSidebar() {
     darkMode: false,
   })
   const [sidebarOpen, setSidebarOpen] = React.useState(true)
-  const [collections, setCollections] = React.useState<{ name: string; resources: Resource[] }[]>([])
+  const [collections, setCollections] = React.useState<{ name: string; resources: ResourceType[] }[]>([])
   const [activeCollection, setActiveCollection] = React.useState<string | null>(null)
   const [newCollectionName, setNewCollectionName] = React.useState('')
-  const [showConfirmation, setShowConfirmation] = React.useState(false)
   const [deleteCollectionName, setDeleteCollectionName] = React.useState<string | null>(null)
-  const [showDeleteHistoryItem, setShowDeleteHistoryItem] = React.useState<string | null>(null)
   const [isLoading, setIsLoading] = React.useState(false);
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [isSaveDialogOpen, setIsSaveDialogOpen] = React.useState(false);
-  const [selectedResource, setSelectedResource] = React.useState<Resource | null>(null);
+  const [selectedResource, setSelectedResource] = React.useState<ResourceType | null>(null);
   const [isEditingProfile, setIsEditingProfile] = React.useState(false);
-  const [expandedResource, setExpandedResource] = React.useState<Resource | null>(null);
+  const [expandedResource, setExpandedResource] = React.useState<ResourceType | null>(null);
   const [expandedContent, setExpandedContent] = React.useState<string>('');
   const [isExpandedLoading, setIsExpandedLoading] = React.useState(false);
   const scrollAreaRef = React.useRef<HTMLDivElement>(null)
@@ -255,34 +246,6 @@ export function EduEaseSidebar() {
     iconColor: '#B0B0B0',
   };
 
-  const containerStyle = {
-    position: 'fixed' as const,
-    right: '0',
-    top: '0',
-    bottom: '0',
-    zIndex: 50,
-    transition: 'all 0.3s ease-in-out',
-    transform: sidebarOpen ? 'translateX(0)' : 'translateX(100%)',
-    opacity: sidebarOpen ? 1 : 0,
-    visibility: sidebarOpen ? 'visible' : 'hidden'
-  };
-
-  const sidebarStyle = {
-    transition: 'all 0.3s ease-in-out',
-    transform: sidebarOpen ? 'translateX(0)' : 'translateX(100%)',
-    opacity: sidebarOpen ? 1 : 0
-  };
-
-  const toggleButtonStyle = {
-    position: 'fixed' as const,
-    right: '20px',
-    top: '20px',
-    zIndex: 40,
-    transition: 'transform 0.3s ease-in-out, opacity 0.2s ease-in-out',
-    transform: sidebarOpen ? 'translateX(100%)' : 'translateX(0)',
-    opacity: sidebarOpen ? 0 : 1
-  };
-
   const inputStyle = {
     backgroundColor: userSettings.darkMode ? darkModeStyles.inputBackground : '#F0F0F0',
     color: userSettings.darkMode ? darkModeStyles.inputText : '#000000',
@@ -299,21 +262,6 @@ export function EduEaseSidebar() {
 
   const cardStyle = {
     backgroundColor: '#FFFFFF',
-    color: '#000000',
-    border: '1px solid #E0E0E0',
-    borderRadius: '8px',
-    padding: '16px',
-    marginBottom: '16px',
-    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-  };
-
-  const descriptionStyle = {
-    color: userSettings.darkMode ? '#B0B0B0' : '#666666',
-  };
-
-  const inputBoxStyle = {
-    backgroundColor: userSettings.darkMode ? 'rgba(255, 255, 255, 0.1)' : '#F0F0F0',
-    color: userSettings.darkMode ? '#000000' : '#333333',
   };
 
   // Handle localStorage after mount
@@ -452,6 +400,7 @@ export function EduEaseSidebar() {
       addToast({
         title: "Welcome!",
         description: `Great to have you here, ${name}!`,
+        variant: "success",
       })
     }
   }
@@ -464,6 +413,7 @@ export function EduEaseSidebar() {
     addToast({
       title: "Logged out successfully",
       description: "See you next time!",
+      variant: "success",
     })
   }
 
@@ -471,11 +421,11 @@ export function EduEaseSidebar() {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, addToast]);
 
   React.useEffect(() => {
-    document.body.classList.toggle('dark', userSettings.darkMode)
-  }, [userSettings.darkMode])
+    document.body.classList.toggle('dark', userSettings.darkMode);
+  }, [userSettings.darkMode]);
 
   const handleCreateCollection = (name: string) => {
     if (collections.some(c => c.name === name)) {
@@ -490,12 +440,13 @@ export function EduEaseSidebar() {
     setCollections(prev => [...prev, { name, resources: [] }]);
     addToast({
       title: "Collection created",
-      description: `Created collection "${name}"`,
+      description: `Created collection &quot;${name}&quot;`,
+      variant: "success",
     });
     return true;
   };
 
-  const handleAddToCollection = (collectionName: string, resource: Resource) => {
+  const handleAddToCollection = (collectionName: string, resource: ResourceType) => {
     setCollections(prev => prev.map(collection => {
       if (collection.name === collectionName) {
         // Check if resource already exists in collection
@@ -516,7 +467,7 @@ export function EduEaseSidebar() {
     }));
   };
 
-  const handleSaveToCollection = (resource: Resource, collectionName: string) => {
+  const handleSaveToCollection = (resource: ResourceType, collectionName: string) => {
     if (collections.length === 0) {
       const created = handleCreateCollection(collectionName);
       if (created) {
@@ -558,10 +509,11 @@ export function EduEaseSidebar() {
     addToast({
       title: "Chat Cleared",
       description: "All messages have been removed.",
+      variant: "success",
     });
   };
 
-  const handleExpandResource = async (resource: Resource) => {
+  const handleExpandResource = async (resource: ResourceType) => {
     setExpandedResource(resource);
     setIsExpandedLoading(true);
     
@@ -592,8 +544,8 @@ export function EduEaseSidebar() {
     }
   };
 
-  const MessageCard = ({ message }: { message: Message }) => {
-    const handleSaveClick = (resource: Resource) => {
+  const MessageCard = ({ message }: { message: MessageType }) => {
+    const handleSaveClick = (resource: ResourceType) => {
       setSelectedResource(resource);
       setIsSaveDialogOpen(true);
     };
@@ -612,7 +564,7 @@ export function EduEaseSidebar() {
       <>
         <div className="flex flex-col space-y-4 mb-4">
           {Array.isArray(message.content) ? (
-            message.content.map((resource: Resource) => (
+            message.content.map((resource: ResourceType) => (
               <Card 
                 key={resource.id} 
                 className="w-full bg-white dark:bg-gray-800 shadow-md hover:shadow-lg transition-transform transform hover:scale-[1.02] rounded-lg p-4 border border-gray-200 dark:border-gray-800"
@@ -666,7 +618,7 @@ export function EduEaseSidebar() {
                       handleExpandResource(resource);
                     }}
                     className={cn(
-                      "transition-colors duration-200",
+                      "opacity-0 group-hover:opacity-100 transition-opacity",
                       userSettings.darkMode 
                         ? "text-white hover:text-white/90 hover:bg-gray-700/50" 
                         : "text-black hover:text-black/90 hover:bg-gray-100"
@@ -832,7 +784,8 @@ export function EduEaseSidebar() {
     setCollections(prev => [...prev, { name, resources: [] }]);
     addToast({
       title: "Collection created",
-      description: `Created collection "${name}"`,
+      description: `Created collection &quot;${name}&quot;`,
+      variant: "success",
     });
     return true;
   };
@@ -842,7 +795,8 @@ export function EduEaseSidebar() {
     setActiveCollection(null);
     addToast({
       title: "Collection Deleted",
-      description: `Successfully deleted "${collectionName}"`,
+      description: `Successfully deleted &quot;${collectionName}&quot;`,
+      variant: "success",
     });
     setDeleteCollectionName(null);
   };
@@ -870,7 +824,7 @@ export function EduEaseSidebar() {
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                style={inputBoxStyle}
+                style={inputStyle}
                 className={cn(
                   "w-full pl-10 rounded-md border-none py-2",
                   userSettings.darkMode ? "bg-gray-700 text-white placeholder-white" : "bg-white text-black"
@@ -1206,7 +1160,7 @@ export function EduEaseSidebar() {
                         placeholder="Enter your name"
                         value={userNameInput}
                         onChange={(e) => setUserNameInput(e.target.value)}
-                        style={inputBoxStyle}
+                        style={inputStyle}
                         className={cn(
                           "w-full rounded-md border-none resize-none pl-3 py-2",
                           userSettings.darkMode ? "text-white" : "text-gray-900"
@@ -1303,7 +1257,15 @@ export function EduEaseSidebar() {
         variant="ghost"
         size="icon"
         onClick={() => setSidebarOpen(true)}
-        style={toggleButtonStyle}
+        style={{
+          position: 'fixed',
+          right: '20px',
+          top: '20px',
+          zIndex: 40,
+          transition: 'transform 0.3s ease-in-out, opacity 0.2s ease-in-out',
+          transform: sidebarOpen ? 'translateX(100%)' : 'translateX(0)',
+          opacity: sidebarOpen ? 0 : 1
+        }}
         className="rounded-full bg-white dark:bg-gray-800 shadow-lg hover:shadow-xl transform transition-all duration-200 hover:scale-110 w-10 h-10 flex items-center justify-center"
       >
         <Book className="h-5 w-5 text-blue-600" />
@@ -1341,7 +1303,7 @@ export function EduEaseSidebar() {
           >
             <X className="h-5 w-5" />
           </button>
-          <img src="/assets/logo.png" alt="EduEase Logo" className="h-12 w-auto mx-auto mb-2" />
+          <Image src="/assets/logo.png" alt="EduEase Logo" width={100} height={50} />
           <h1 className={cn(
             "text-2xl font-bold",
             userSettings.darkMode ? "text-white" : "text-gray-900"
